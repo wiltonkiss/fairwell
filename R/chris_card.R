@@ -14,9 +14,9 @@ get_name <- function(x){
 }
 
 get_message <- function(x, loc) {
- 
+  
   readLines(file.path(paste0(loc, x)), warn=FALSE) %>%
-    paste(., collapse = "</p><p>")
+    paste(., collapse = "<br>")
 }
 
 
@@ -25,9 +25,22 @@ all_files <- list.files(loc)
 text_files <- all_files[stringr::str_detect(all_files, ".txt")]
 image_files <- all_files[stringr::str_detect(all_files, ".jpg")]
 
+text_colours <- c("#00bfff",
+                  "#0080ff",	
+                  "#0040ff",	
+                  "#0000ff",
+                  "#4000ff",
+                  "#8000ff",
+                  "#bf00ff",
+                  "#ff00ff",
+                  "#ff00bf",
+                  "#ff0080",
+                  "#ff0040",
+                  "#ff0000")
+
 messages <- as.character()
 for(i in 1:length(text_files)){
-  messages[i]  <- get_message(text_files[i], loc)
+  messages[i]  <- paste0("<p style=\"color:",text_colours[sample(1:12,1)],"\"><b>",get_message(text_files[i], loc),"</b></p>")
   name <- get_name(text_files[[i]])
 }
 
@@ -40,9 +53,9 @@ mgs[[4]] <- paste(messages[13:16],a,collapse = a)
 mgs[[5]] <- paste(messages[17:20],a,collapse = a)
 mgs[[6]] <- paste(messages[21:100][!is.na(messages[21:100])],a,collapse = a)
 
-dir.create(paste0(loc,"/processed"))
+dir.create(paste0(loc,"processed"), showWarnings = FALSE)
 for(i in 1:6){
-  write.table(mgs[[i]], paste0(loc,"/processed/messages_",i,".html"), col.names=F, row.names = F, quote = F)
+  write.table(mgs[[i]], paste0(loc,"processed/messages_",i,".html"), col.names=F, row.names = F, quote = F)
 }
 
 #images
