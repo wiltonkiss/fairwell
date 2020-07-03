@@ -40,6 +40,7 @@ mgs[[4]] <- paste(messages[13:16],a,collapse = a)
 mgs[[5]] <- paste(messages[17:20],a,collapse = a)
 mgs[[6]] <- paste(messages[21:100][!is.na(messages[21:100])],a,collapse = a)
 
+dir.create(paste0(loc,"/processed"))
 for(i in 1:6){
   write.table(mgs[[i]], paste0(loc,"/processed/messages_",i,".html"), col.names=F, row.names = F, quote = F)
 }
