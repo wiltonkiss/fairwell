@@ -1,0 +1,32 @@
+# Need ldndatar 0.2.0
+
+# ONS data - this is only updated once a week at 9:30 on Tuesdays
+# Don't need to rerun everyday once data has been fetched
+source("R/ons_adhoc_historic_weekly_occurrence_fetch.R")
+source("R/ons_adhoc_historic_weekly_occurrence_clean.R")
+source("R/ons_deaths_la_fetch.R")
+source("R/ons_deaths_la_clean.R")
+source("R/ons_deaths_cqc_fetch.R")
+source("R/ons_deaths_cqc_clean.R")
+
+# NHSE data - updated daily at 2pm(ish)
+source("R/nhse_deaths_fetch.R")
+source("R/nhse_deaths_clean.R")
+
+# Generate outputs for the datastore
+source("R/datastore_deaths_outputs.R")
+# Check everything's looking OK
+# Numbers against https://www.england.nhs.uk/statistics/statistical-work-areas/covid-19-daily-deaths/
+# Check axis all looking OK - if not edit deaths_update.Rmd
+viewer <- getOption("viewer")
+viewer(paste0("output/", Sys.Date(), "_covid_deaths.html"))
+
+# THIS WRITES TO THE DATASTORE
+# Need to have London Datastore API key saved as "lds_api_key" environment variable
+source("R/datastore_deaths.R")
+
+# Make additional plots for Demographic impact reports
+source("R/plot_deaths_comparison_inc_cqc.R")
+source("R/plot_excess_deaths.R")
+
+## TODO:Email digital

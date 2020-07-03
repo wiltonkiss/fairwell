@@ -1,0 +1,69 @@
+# Fetch NHS COVID-19 Deaths data
+# Updated daily with total and daily figures
+# Provde raw_dir file directory as command line arg
+library(lubridate)
+library(xml2)
+library(rvest)
+library(RCurl)
+library(dplyr)
+source("R/default_cmd_dirs.R")
+defaults <- list(raw_dir = "data/updated/raw")
+dirs <- default_cmd_dirs(defaults)
+
+url <- "https://www.england.nhs.uk/statistics/statistical-work-areas/covid-19-daily-deaths/"
+
+pg <- read_html(url)
+
+links <- html_attr(html_nodes(pg, "a"), "href")
+
+total_deaths_link <- links[grepl("all.announced|total.announced", links) & !grepl("weekly", links)]
+if (length(total_deaths_link) != 1) {
+  stop("Total deaths link format has changed")
+}
+daily_deaths_link <- links[grepl("daily-announced", links)]
+if (length(total_deaths_link) == 0) {
+  stop("Daily deaths link format has changed")
+}
+
+total_date <- total_deaths_link %>%
+  gsub(".*announced-deaths-", "", .) %>%
+  gsub("(-[0-9])?.xlsx", "", .) %>%
+  dmy()
+
+if (total_date != Sys.Date()) {
+  # Check to see if todays link is available even if the main page isn't listing it
+  new_link <- total_deaths_link %>%
+    gsub(gsub("^0", "", format(total_date, "%d-%B-%Y")),
+         gsub("^0", "", format(total_date + 1, "%d-%B-%Y")), .)
+  new_data <- url.exists(new_link)
+  # If it is update the links and date
+  if (new_data) {
+    total_deaths_link <- new_link
+    daily_deaths_link <- c(daily_deaths_link[1] %>%
+                             gsub(gsub("^0", "", format(total_date, "%d-%B-%Y")),
+                                  gsub("^0", "", format(total_date + 1, "%d-%B-%Y")), .),
+                           daily_deaths_link) %>%
+      unique()
+    total_date <- total_date + 1
+  } else {
+    message(paste("Most recent data is for", total_date, "not for today."))
+  }
+}
+total_destfile <- file.path(dirs[['raw_dir']],
+                            paste0("nhse_deaths_total_", total_date, ".xlsx"))
+message(paste("Writing file: ", total_destfile))
+download.file(total_deaths_link, destfile = total_destfile, mode = "wb")
+
+for (link in daily_deaths_link) {
+  daily_date <- link %>%
+    gsub(".*announced-deaths-", "", .) %>%
+    gsub("(-[0-9])?.xlsx", "", .) %>%
+    dmy()
+  daily_destfile <- file.path(dirs[["raw_dir"]],
+                              paste0("nhse_deaths_daily_", daily_date, ".xlsx"))
+  # Do we want to do this, or overwrite incase of updates?
+  if (!file.exists(daily_destfile)) {
+    message(paste("Writing file: ", daily_destfile))
+    download.file(link, destfile = daily_destfile, mode = "wb")
+  }
+}

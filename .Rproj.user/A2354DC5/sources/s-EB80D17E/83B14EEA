@@ -1,0 +1,24 @@
+{
+    "id": "83B14EEA",
+    "path": "C:/Projects_c/londonCV19dash/R/datastore_deaths_manual.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1593781469574.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "cursorPosition": "23,30",
+        "scrollLine": "12"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1591257142,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1591257142,
+    "read_only": false,
+    "read_only_alternatives": []
+}
